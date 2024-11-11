@@ -7,7 +7,7 @@ abstract sealed class Person permits User {
     private String dob;
 
     public Person() {
-        
+
     }
 
     public Person(String name, int age, String dob) {
@@ -42,7 +42,7 @@ abstract sealed class Person permits User {
 
     @Override
     public String toString() {
-        return "name: " + this.name + ", age: " + this.age + ", dob: " + this.dob;
+        return "Person{name='" + name + "', age=" + age + ", dob='" + dob + "'}";
     }
-    
+
 }

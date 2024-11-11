@@ -2,20 +2,23 @@ package model;
 
 public class Mood {
 
-    private MoodType mood;
+    private MoodType emotion;
     private int intensity;
 
-    public Mood(MoodType mood, int intensity) {
-        this.mood = mood;
+    public Mood() {
+    }
+
+    public Mood(MoodType emotion, int intensity) {
+        this.emotion = emotion;
         this.intensity = intensity;
     }
 
     public MoodType getMood() {
-        return this.mood;
+        return this.emotion;
     }
 
-    public void setMood(MoodType mood) {
-        this.mood = mood;
+    public void setMood(MoodType emotion) {
+        this.emotion = emotion;
     }
 
     public int getIntensity() {

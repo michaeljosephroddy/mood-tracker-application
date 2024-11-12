@@ -1,5 +1,6 @@
 package contract;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 import model.MoodEntry;
@@ -16,5 +17,5 @@ public interface MoodTrackable {
 
     public MoodEntry deleteMoodEntry(Long id);
 
-    public ArrayList<MoodEntry> filterMoodEntries();
+    public ArrayList<MoodEntry> filterMoodEntries(User user, LocalDateTime dateToFilterOn, int option);
 }

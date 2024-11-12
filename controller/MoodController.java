@@ -2,10 +2,17 @@ package controller;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import model.MoodEntry;
 import model.User;
+import contract.DemoFunctionalInterface;
 import contract.MoodTrackable;
 import database.H2DatabaseConnector;
 
@@ -22,8 +29,7 @@ public class MoodController implements MoodTrackable {
 
     @Override
     public String createMoodEntry(MoodEntry moodEntry) {
-        // TODO get sql statement working and executing
-        // TODO do validation and implement a checked exception
+
         String sql = "insert into moodentries (moodentryid, userid, moods, date, description) values ('%s', '%s', '%s', '%s', '%s')";
         String fSql = String.format(sql, moodEntry.getMoodEntryId(), moodEntry.getUserId(), moodEntry.serializeMoods(),
                 moodEntry.getDate(), moodEntry.getDescription());
@@ -68,7 +74,7 @@ public class MoodController implements MoodTrackable {
             return new ArrayList<>(entries); // defensive copying
 
         } catch (SQLException e) {
-            System.out.println("Error reading ResultSet for Query " + sql);
+            System.out.println("Error reading ResultSet for Query " + fSql);
             e.printStackTrace();
         }
 
@@ -94,9 +100,70 @@ public class MoodController implements MoodTrackable {
     }
 
     @Override
-    public ArrayList<MoodEntry> filterMoodEntries() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'filterMoodEntries'");
+    public ArrayList<MoodEntry> filterMoodEntries(User user, LocalDateTime dateToFilterOn, int option) {
+
+        if (user.getMoodHistory() == null) {
+            return new ArrayList<>();
+        }
+
+        // trying out a custom functional interface to do stuff
+        DemoFunctionalInterface dmf = new DemoFunctionalInterface() {
+            @Override
+            public ArrayList<MoodEntry> doStuff(User user) {
+                ArrayList<MoodEntry> history = readMoodEntries(user);
+                return history;
+            }
+        };
+
+        ArrayList<MoodEntry> results = dmf.doStuff(user);
+
+        // Consumer functional interface implemented using anonymous inner class
+        // Consumer<MoodEntry> consumer = (moodEntry) -> {
+        // System.out.println("calling form filterMoodEntries() printing");
+        // System.out.println(moodEntry.toString());
+        // };
+        // results.forEach(consumer::accept);
+
+        Stream<MoodEntry> mystream = results.stream();
+
+        // create implementation of predicate with anonymous class
+        // Predicate<MoodEntry> predicate = new Predicate<MoodEntry>() {
+
+        // @Override
+        // public boolean test(MoodEntry moodEntry) {
+        // return (option == 1) ?
+        // LocalDateTime.parse(moodEntry.getDate()).isAfter(dateToFilterOn)
+        // : LocalDateTime.parse(moodEntry.getDate()).isBefore(dateToFilterOn);
+
+        // }
+
+        // };
+
+        // more concise with lambda function but we can do better
+        // Predicate<MoodEntry> predicate2 = (MoodEntry moodEntry) -> {
+        // return (option == 1) ?
+        // LocalDateTime.parse(moodEntry.getDate()).isAfter(dateToFilterOn)
+        // : LocalDateTime.parse(moodEntry.getDate()).isBefore(dateToFilterOn);
+
+        // };
+
+        // doing the same thing with lambda function passed to filter
+        // mystream = mystream
+        // .filter((moodEntry) -> (option == 1) ?
+        // LocalDateTime.parse(moodEntry.getDate()).isAfter(dateToFilterOn)
+        // : LocalDateTime.parse(moodEntry.getDate()).isBefore(dateToFilterOn));
+
+        // mystream = mystream.filter(predicate);
+
+        // List<MoodEntry> collectedList = mystream.collect(Collectors.toList());
+
+        // return new ArrayList<>(collectedList);
+
+        return new ArrayList<>(results.stream()
+                .filter((moodEntry) -> (option == 1) ? LocalDateTime.parse(moodEntry.getDate()).isAfter(dateToFilterOn)
+                        : LocalDateTime.parse(moodEntry.getDate()).isBefore(dateToFilterOn))
+                .collect(Collectors.toList()));
+
     }
 
 }

@@ -26,7 +26,7 @@ public class ConsoleView {
         // Main loop to interact with the user
         boolean running = true;
         while (running) {
-            System.out.println("1. Add Mood Entry\n2. View Mood History\n3. Exit");
+            System.out.println("1. Add Mood Entry\n2. View Mood History\n3. Filter Entries on Intensity\n4. Exit");
             int choice = scanner.nextInt();
             scanner.nextLine();
             switch (choice) {
@@ -39,6 +39,11 @@ public class ConsoleView {
                     System.out.println(moodHistory);
                     start();
                 case 3:
+                    String filteredHistory = filter();
+                    System.out.println("These results are filtered");
+                    System.out.println(filteredHistory);
+                    start();
+                case 4:
                     running = false;
                     break;
                 default:
@@ -47,6 +52,33 @@ public class ConsoleView {
         }
 
         System.exit(0);
+    }
+
+    public String filter() {
+
+        System.out.println("Enter Date (format yyyy-mm-ddT00:00:00): ");
+        String date = scanner.nextLine();
+        LocalDateTime dateToFilterOn = LocalDateTime.parse(date);
+
+        System.out.println("1. Filter Entries > " + date + "\n 2. Filter Entries < " + date);
+        int option = scanner.nextInt();
+        scanner.nextLine();
+
+        if (option != 1 && option != 2) {
+            System.out.println("Invalid option try again");
+            filter();
+        }
+
+        ArrayList<MoodEntry> filteredList = moodController.filterMoodEntries(user, dateToFilterOn, option);
+        StringBuilder sb = new StringBuilder();
+
+        for (MoodEntry moodEntry : filteredList) {
+            sb.append(moodEntry.toString() + "\n");
+        }
+
+        // remove last \n for display purposes
+        return sb.toString().substring(0, sb.toString().length() - 1);
+
     }
 
     public String addMoodEntry() {
@@ -96,7 +128,7 @@ public class ConsoleView {
         ArrayList<MoodEntry> moodEntries = moodController.readMoodEntries(user);
 
         if (moodEntries == null) {
-            return "";
+            return "No entries";
         }
 
         StringBuilder sb = new StringBuilder();

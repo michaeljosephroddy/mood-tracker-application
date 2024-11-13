@@ -6,83 +6,85 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-public class H2DatabaseConnector {
+import contract.DBConnector;
+import exception.DatabaseConnectionException;
 
-    private static String DB_URL = "jdbc:h2:mem:test";
-    private static Connection connection;
-    private static Statement statement;
+public class H2DatabaseConnector implements DBConnector {
 
-    public H2DatabaseConnector() {
-    }
+    private String dbUrl = "jdbc:h2:mem:test";
+    private Connection connection;
+    private Statement statement;
 
-    // NB might put these methods in an interface
-
-    public static void connect() {
+    public void connect() {
         try {
-            H2DatabaseConnector.connection = DriverManager.getConnection(DB_URL);
+            connection = DriverManager.getConnection(dbUrl);
             System.out.println("Connected to H2 in-memory database.");
-
         } catch (SQLException e) {
-            e.printStackTrace();
+            var exception = new DatabaseConnectionException("Failed to connect to database", e);
+            System.err.println(exception.getMessage());
+            exception.printStackTrace();
         }
     }
 
-    public static void createMoodEntriesTable() {
-        // NB userid would normally be a foreign here from the users table
-        String sql = "create table moodentries (moodentryid varchar(50) primary key, userid varchar(50), moods varchar(1000), date varchar(50), description varchar(1000))";
+    public void disconnect() {
         try {
-            H2DatabaseConnector.statement.execute(sql);
-            System.out.println("Created table moodentries");
+            if (connection != null) {
+                connection.close();
+            }
         } catch (SQLException e) {
-            System.out.println("Failed to create table moodentries " + e.getMessage());
-            e.printStackTrace();
+            var exception = new DatabaseConnectionException("Error closing connection", e);
+            System.err.println(exception.getMessage());
+            exception.printStackTrace();
         }
-
     }
 
-    public static void disconnect() {
+    public void createStatement() {
         try {
-            H2DatabaseConnector.connection.close();
+            if (connection != null) {
+                statement = connection.createStatement();
+            }
         } catch (SQLException e) {
-            e.printStackTrace();
+            var exception = new DatabaseConnectionException("Error creating Statement", e);
+            System.err.println(exception.getMessage());
+            exception.printStackTrace();
         }
     }
 
-    public Connection getConnection() {
-        return H2DatabaseConnector.connection;
-    }
-
-    public static void createStatement() {
-        try {
-            H2DatabaseConnector.statement = H2DatabaseConnector.connection.createStatement();
-        } catch (SQLException e) {
-            System.err.println("Error creating Statement: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
-
-    // SELECT
     public ResultSet executeSQLRead(String sql) {
         try {
-            return H2DatabaseConnector.statement.executeQuery(sql);
+            return statement.executeQuery(sql);
         } catch (SQLException e) {
-            System.err.println("Error executing SQL query: " + e.getMessage());
-            e.printStackTrace();
+            var exception = new DatabaseConnectionException("Error executing sql query", e);
+            System.err.println(exception.getMessage());
+            exception.printStackTrace();
         }
 
         return null;
     }
 
-    // INSERT UPDATE DELETE
     public int executeSQLUpdate(String sql) {
         try {
-            return H2DatabaseConnector.statement.executeUpdate(sql);
+            return statement.executeUpdate(sql);
         } catch (SQLException e) {
-            System.err.println("Error executing SQL query: " + e.getMessage());
-            e.printStackTrace();
+            var exception = new DatabaseConnectionException("Error executing sql update", e);
+            System.err.println(exception.getMessage());
+            exception.printStackTrace();
         }
 
         return 0;
     }
 
+    public void createMoodEntriesTable() {
+        String sql = "CREATE TABLE moodentries (moodentryid VARCHAR(50) PRIMARY KEY, "
+                + "userid VARCHAR(50), moods VARCHAR(1000), date VARCHAR(50), "
+                + "description VARCHAR(1000))";
+        try {
+            statement.execute(sql);
+            System.out.println("Created table moodentries");
+        } catch (SQLException e) {
+            var exception = new DatabaseConnectionException("Error creating table moodentries", e);
+            System.err.println(exception.getMessage());
+            exception.printStackTrace();
+        }
+    }
 }

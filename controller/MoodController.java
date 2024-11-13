@@ -15,6 +15,7 @@ import model.User;
 import contract.DemoFunctionalInterface;
 import contract.MoodTrackable;
 import database.H2DatabaseConnector;
+import exception.DatabaseConnectionException;
 
 public class MoodController implements MoodTrackable {
 
@@ -22,22 +23,20 @@ public class MoodController implements MoodTrackable {
 
     public MoodController() {
         this.h2DatabaseConnector = new H2DatabaseConnector();
-        H2DatabaseConnector.connect();
-        H2DatabaseConnector.createStatement();
-        H2DatabaseConnector.createMoodEntriesTable();
+        this.h2DatabaseConnector.connect();
+        this.h2DatabaseConnector.createStatement();
+        this.h2DatabaseConnector.createMoodEntriesTable();
     }
 
     @Override
-    public String createMoodEntry(MoodEntry moodEntry) {
+    public MoodEntry createMoodEntry(MoodEntry moodEntry) {
 
         String sql = "insert into moodentries (moodentryid, userid, moods, date, description) values ('%s', '%s', '%s', '%s', '%s')";
         String fSql = String.format(sql, moodEntry.getMoodEntryId(), moodEntry.getUserId(), moodEntry.serializeMoods(),
                 moodEntry.getDate(), moodEntry.getDescription());
         int rowsAffected = h2DatabaseConnector.executeSQLUpdate(fSql);
 
-        String message = "Successfully created " + moodEntry.toString() + " for userId: " + moodEntry.getUserId() + "\n"
-                + "Affected " + rowsAffected + " rows";
-        return message;
+        return moodEntry;
 
     }
 
@@ -74,8 +73,9 @@ public class MoodController implements MoodTrackable {
             return new ArrayList<>(entries); // defensive copying
 
         } catch (SQLException e) {
-            System.out.println("Error reading ResultSet for Query " + fSql);
-            e.printStackTrace();
+            var exception = new DatabaseConnectionException("Error reading ResultSet for query", e);
+            System.err.println(exception.getMessage());
+            exception.printStackTrace();
         }
 
         return new ArrayList<>();
@@ -102,7 +102,7 @@ public class MoodController implements MoodTrackable {
     @Override
     public ArrayList<MoodEntry> filterMoodEntries(User user, LocalDateTime dateToFilterOn, int option) {
 
-        if (user.getMoodHistory() == null) {
+        if (user.getMoodHistory().size() == 0) {
             return new ArrayList<>();
         }
 

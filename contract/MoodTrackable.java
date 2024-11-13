@@ -7,7 +7,7 @@ import model.MoodEntry;
 import model.User;
 
 public interface MoodTrackable {
-    public String createMoodEntry(MoodEntry moodEntry);
+    public MoodEntry createMoodEntry(MoodEntry moodEntry);
 
     public ArrayList<MoodEntry> readMoodEntries(User user);
 

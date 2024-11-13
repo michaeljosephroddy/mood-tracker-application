@@ -26,22 +26,24 @@ public class ConsoleView {
         // Main loop to interact with the user
         boolean running = true;
         while (running) {
-            System.out.println("1. Add Mood Entry\n2. View Mood History\n3. Filter Entries on Intensity\n4. Exit");
+            System.out.println("1. Add Mood Entry\n2. View Mood History\n3. Filter Entries By Date\n4. Exit");
             int choice = scanner.nextInt();
             scanner.nextLine();
             switch (choice) {
                 case 1:
-                    String moodEntry = addMoodEntry();
-                    System.out.println(moodEntry);
+                    var moodEntry = addMoodEntry();
+                    MoodEntry.prettyPrintAsJSON(moodEntry);
                     start();
                 case 2:
-                    String moodHistory = viewMoodHistory();
-                    System.out.println(moodHistory);
+                    viewMoodHistory();
+
                     start();
                 case 3:
-                    String filteredHistory = filter();
+                    var filteredHistory = filter();
                     System.out.println("These results are filtered");
-                    System.out.println(filteredHistory);
+                    for (MoodEntry entry : filteredHistory) {
+                        MoodEntry.prettyPrintAsJSON(entry);
+                    }
                     start();
                 case 4:
                     running = false;
@@ -54,13 +56,13 @@ public class ConsoleView {
         System.exit(0);
     }
 
-    public String filter() {
+    public ArrayList<MoodEntry> filter() {
 
         System.out.println("Enter Date (format yyyy-mm-ddT00:00:00): ");
         String date = scanner.nextLine();
         LocalDateTime dateToFilterOn = LocalDateTime.parse(date);
 
-        System.out.println("1. Filter Entries > " + date + "\n 2. Filter Entries < " + date);
+        System.out.println("1. Filter Entries > " + date + "\n2. Filter Entries < " + date);
         int option = scanner.nextInt();
         scanner.nextLine();
 
@@ -70,18 +72,16 @@ public class ConsoleView {
         }
 
         ArrayList<MoodEntry> filteredList = moodController.filterMoodEntries(user, dateToFilterOn, option);
-        StringBuilder sb = new StringBuilder();
 
-        for (MoodEntry moodEntry : filteredList) {
-            sb.append(moodEntry.toString() + "\n");
+        if (filteredList.size() == 0) {
+            System.out.println("no entries");
+            return new ArrayList<>();
         }
 
-        // remove last \n for display purposes
-        return sb.toString().substring(0, sb.toString().length() - 1);
-
+        return filteredList;
     }
 
-    public String addMoodEntry() {
+    public MoodEntry addMoodEntry() {
         ArrayList<Mood> moods = new ArrayList<>();
 
         boolean done = true;
@@ -120,24 +120,19 @@ public class ConsoleView {
         moodEntry.setDescription(description);
         moodEntry.setDate(LocalDateTime.now().toString());
 
-        String response = moodController.createMoodEntry(moodEntry);
-        return response;
+        MoodEntry entry = moodController.createMoodEntry(moodEntry);
+        return entry;
     }
 
-    public String viewMoodHistory() {
+    public void viewMoodHistory() {
         ArrayList<MoodEntry> moodEntries = moodController.readMoodEntries(user);
 
-        if (moodEntries == null) {
-            return "No entries";
+        if (moodEntries.size() == 0) {
+            System.out.println("no entries");
         }
-
-        StringBuilder sb = new StringBuilder();
 
         for (MoodEntry moodEntry : moodEntries) {
-            sb.append(moodEntry.toString() + "\n");
+            MoodEntry.prettyPrintAsJSON(moodEntry);
         }
-
-        // remove last \n for display purposes
-        return sb.toString().substring(0, sb.toString().length() - 1);
     }
 }

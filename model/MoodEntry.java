@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.UUID;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 public class MoodEntry {
 
@@ -26,6 +27,12 @@ public class MoodEntry {
         this.moods = moods;
         this.date = date;
         this.description = description;
+    }
+
+    public static void prettyPrintAsJSON(MoodEntry moodEntry) {
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        String json = gson.toJson(moodEntry);
+        System.out.println(json);
     }
 
     public String serializeMoods() {

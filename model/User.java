@@ -2,7 +2,6 @@ package model;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.UUID;
 
 public final class User extends Person {
 
@@ -11,10 +10,9 @@ public final class User extends Person {
     private String createdOn;
 
     // Constructor
-    public User(String name, int age, String dob) {
+    public User(String name, int age, String dob, String userId) {
         super(name, age, dob); // Calls the constructor of the Person class
-        this.userId = UUID.randomUUID().toString();
-
+        this.userId = userId;
         this.moodHistory = new ArrayList<>();
         this.createdOn = LocalDateTime.now().toString(); // Sets account creation date to now
     }

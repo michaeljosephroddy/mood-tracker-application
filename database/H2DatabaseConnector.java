@@ -11,13 +11,18 @@ import exception.DatabaseConnectionException;
 
 public class H2DatabaseConnector implements DBConnector {
 
-    private String dbUrl = "jdbc:h2:mem:test";
+    String dbFilePath = System.getenv("MOOD_TRACKER_DB_FILE_PATH");
+    String user = System.getenv("DATABASE_USER");
+    String password = System.getenv("DATABASE_PASSWORD");
+
+    private String dbUrl = "jdbc:h2:./database/mood_tracker_db";
     private Connection connection;
     private Statement statement;
 
     public void connect() {
         try {
-            connection = DriverManager.getConnection(dbUrl);
+            System.out.println(dbFilePath);
+            connection = DriverManager.getConnection(dbUrl, user, password);
             System.out.println("Connected to H2 in-memory database.");
         } catch (SQLException e) {
             var exception = new DatabaseConnectionException("Failed to connect to database", e);
@@ -75,7 +80,7 @@ public class H2DatabaseConnector implements DBConnector {
     }
 
     public void createMoodEntriesTable() {
-        String sql = "CREATE TABLE moodentries (moodentryid VARCHAR(50) PRIMARY KEY, "
+        String sql = "create table if not exists moodentries (moodentryid VARCHAR(50) PRIMARY KEY, "
                 + "userid VARCHAR(50), moods VARCHAR(1000), date VARCHAR(50), "
                 + "description VARCHAR(1000))";
         try {

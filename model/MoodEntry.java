@@ -29,10 +29,10 @@ public class MoodEntry {
         this.description = description;
     }
 
-    public static void prettyPrintAsJSON(MoodEntry moodEntry) {
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+    public static String convertToJSON(MoodEntry moodEntry) {
+        Gson gson = new Gson();
         String json = gson.toJson(moodEntry);
-        System.out.println(json);
+        return json;
     }
 
     public String serializeMoods() {

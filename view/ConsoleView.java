@@ -5,7 +5,13 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonParser;
+
 import controller.MoodController;
+import database.H2DatabaseConnector;
 import model.Mood;
 import model.MoodEntry;
 import model.MoodType;
@@ -14,12 +20,14 @@ import model.User;
 public class ConsoleView {
     private final Scanner scanner;
     private final MoodController moodController;
+    private final H2DatabaseConnector databaseConnector;
     private User user;
 
     public ConsoleView(User user) {
         this.user = user;
         this.moodController = new MoodController();
         this.scanner = new Scanner(System.in);
+        this.databaseConnector = new H2DatabaseConnector();
     }
 
     public void start() {
@@ -32,20 +40,18 @@ public class ConsoleView {
             switch (choice) {
                 case 1:
                     var moodEntry = addMoodEntry();
-                    MoodEntry.prettyPrintAsJSON(moodEntry);
+                    System.out.println(MoodEntry.convertToJSON(moodEntry));
                     start();
                 case 2:
-                    viewMoodHistory();
-
+                    var history = getMoodHistory();
+                    printAsJSONArray(history);
                     start();
                 case 3:
-                    var filteredHistory = filter();
-                    System.out.println("These results are filtered");
-                    for (MoodEntry entry : filteredHistory) {
-                        MoodEntry.prettyPrintAsJSON(entry);
-                    }
+                    var filteredHistory = filterMoodHistory();
+                    printAsJSONArray(filteredHistory);
                     start();
                 case 4:
+                    databaseConnector.disconnect();
                     running = false;
                     break;
                 default:
@@ -56,7 +62,7 @@ public class ConsoleView {
         System.exit(0);
     }
 
-    public ArrayList<MoodEntry> filter() {
+    public String filterMoodHistory() {
 
         System.out.println("Enter Date (format yyyy-mm-ddT00:00:00): ");
         String date = scanner.nextLine();
@@ -68,17 +74,16 @@ public class ConsoleView {
 
         if (option != 1 && option != 2) {
             System.out.println("Invalid option try again");
-            filter();
+            filterMoodHistory();
         }
 
         ArrayList<MoodEntry> filteredList = moodController.filterMoodEntries(user, dateToFilterOn, option);
 
         if (filteredList.size() == 0) {
-            System.out.println("no entries");
-            return new ArrayList<>();
+            return convertToJSONString(new ArrayList<>());
         }
 
-        return filteredList;
+        return convertToJSONString(filteredList);
     }
 
     public MoodEntry addMoodEntry() {
@@ -124,15 +129,49 @@ public class ConsoleView {
         return entry;
     }
 
-    public void viewMoodHistory() {
+    public String getMoodHistory() {
         ArrayList<MoodEntry> moodEntries = moodController.readMoodEntries(user);
 
         if (moodEntries.size() == 0) {
-            System.out.println("no entries");
+            return convertToJSONString(new ArrayList<>());
         }
 
-        for (MoodEntry moodEntry : moodEntries) {
-            MoodEntry.prettyPrintAsJSON(moodEntry);
+        return convertToJSONString(moodEntries);
+
+    }
+
+    public static String convertToJSONString(ArrayList<MoodEntry> data) {
+
+        if (data.size() == 0) {
+            return "[]";
         }
+
+        if (data.size() == 1) {
+            return "[" + MoodEntry.convertToJSON(data.get(0)) + "]";
+        }
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("[");
+
+        int index = 0;
+        for (MoodEntry moodEntry : data) {
+
+            if (index == data.size() - 1) {
+                sb.append(MoodEntry.convertToJSON(moodEntry));
+                sb.append("]");
+                break;
+            }
+
+            sb.append(MoodEntry.convertToJSON(moodEntry) + ",");
+            index++;
+        }
+
+        return sb.toString();
+    }
+
+    public static void printAsJSONArray(String data) {
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        JsonArray jsonArray = JsonParser.parseString(data).getAsJsonArray();
+        System.out.println(gson.toJson(jsonArray));
     }
 }

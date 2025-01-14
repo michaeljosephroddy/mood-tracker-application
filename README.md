@@ -1,60 +1,73 @@
-# mood-tracker
+# Mood-Tracker
 
-A pure Java application that runs in the console. Create and read mood entries.
+A pure Java application that runs in the console, enabling users to create and read mood entries.
 
-### Implementation
+---
 
-I used an MVC architecture with a database layer to organise my code. The view takes input from the user and calls methods from the controller updating the models and interacting with the database. In the database layer I used a H2 in-memory database to temporarily store the mood entries for demonstration purposes.
+## Implementation
 
-Throughout the application I have implemented fundamental and advanced features of the java programming language. From building blocks like classes, objects, inheritance, constructors, interfaces, overloading, overriding, access modifiers and exceptions to more advanced features like functional interfaces, lambdas, anonymous inner class, sealed class and records.
+This application is built using an **MVC (Model-View-Controller)** architecture combined with a database layer. Here’s how the components interact:
 
-The app demonstrates most of the following Java features:
+- **View:** Takes input from the user and calls methods from the controller.
+- **Controller:** Updates the models and interacts with the database.
+- **Database Layer:** Utilizes an H2 in-memory database to temporarily store mood entries for demonstration purposes.
 
-Fundamentals:
+### Key Features
+The application showcases both fundamental and some more advanced features of the Java programming language. 
 
-- classes
-- contrast this() and this.
-- method overloading
-- varargs
-- LVTI
-- encapsulation
-- interfaces
-- inheritance
-- overriding and polymorphism
-- contrast super() and super.
-- exceptions (checked and unchecked)
-- enums
-- arrays
-- use of Java Core API (String, StringBuilder, List/ArrayList, Date API)
+#### **Fundamental Features:**
+- **Object-Oriented Principles:**
+  - Classes and objects
+  - Encapsulation
+  - Inheritance and polymorphism
+  - Method overloading and overriding
+- **Key Java Features:**
+  - Access modifiers (e.g., `private`, `public`)
+  - Enums
+  - Arrays
+  - Exceptions (checked and unchecked)
+  - Core API usage: `String`, `StringBuilder`, `List/ArrayList`, and Date API
+- **Special Constructs:**
+  - `this()` vs. `this.`
+  - `super()` vs. `super.`
+  - Varargs
+  - Local Variable Type Inference (LVTI)
 
-Advanced:
+#### **Advanced Features:**
+- Functional Programming:
+  - Lambdas (e.g., `Predicate`)
+  - Method references
+  - Discussion of `final` and `effectively final` variables
+- Modern Java Features:
+  - Switch expressions and pattern matching
+  - Records (custom immutable types)
+  - Sealed classes and interfaces
+- Interfaces:
+  - Private, default, and static methods
+- Defensive Coding:
+  - Call-by-value and defensive copying
 
-- call-by-value and defensive copying
-- private, default and static interface methods
-- records
-- a custom immutable type
-- lambdas (Predicate)
-- discussion of ‘final’ or ‘effectively final’
-- method references
-- switch expressions and pattern matching
-- sealed classes and interfaces
+---
 
-### Improvements
+## Planned Improvements
 
-- Allow user to filter on different conditions like moods and intensity.
-- Add functionality where a user can update a specific record by ID.
-- Add functionality that would allow a user to delete a mood entry by ID.
+1. **Filtering:**
+   - Add functionality to filter mood entries based on conditions such as mood type and intensity.
+2. **Updating Records:**
+   - Enable users to update specific entries by their unique ID.
+3. **Deleting Records:**
+   - Allow users to delete a mood entry by its ID.
 
-### Run the App
+---
 
-Compile:
+## Running the Application
 
+### Compile:
 ```bash
-javac -d output -cp "lib/gson-2.11.0.jar:lib/h2-2.1.210.jar" \*/\*.java
+javac -d output -cp "lib/gson-2.11.0.jar:lib/h2-2.1.210.jar" */*.java
 ```
 
-Run:
-
+### Run:
 ```bash
 java -cp "output:lib/gson-2.11.0.jar:lib/h2-2.1.210.jar" app.MainApp
 ```

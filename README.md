@@ -13,9 +13,11 @@ This application is built using an **MVC (Model-View-Controller)** architecture 
 - **Database Layer:** Utilizes an H2 in-memory database to temporarily store mood entries for demonstration purposes.
 
 ### Key Features
-The application showcases both fundamental and some more advanced features of the Java programming language. 
+
+The application showcases both fundamental and some more advanced features of the Java programming language.
 
 #### **Fundamental Features:**
+
 - **Object-Oriented Principles:**
   - Classes and objects
   - Encapsulation
@@ -34,6 +36,7 @@ The application showcases both fundamental and some more advanced features of th
   - Local Variable Type Inference (LVTI)
 
 #### **Advanced Features:**
+
 - Functional Programming:
   - Lambdas (e.g., `Predicate`)
   - Method references
@@ -62,12 +65,14 @@ The application showcases both fundamental and some more advanced features of th
 
 ## Running the Application
 
-### Compile:
+### Build:
+
 ```bash
-javac -d output -cp "lib/gson-2.11.0.jar:lib/h2-2.1.210.jar" */*.java
+mvn clean install
 ```
 
 ### Run:
+
 ```bash
-java -cp "output:lib/gson-2.11.0.jar:lib/h2-2.1.210.jar" app.MainApp
+mvn exec:java -Dexec.mainClass="app.MainApp"
 ```

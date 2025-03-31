@@ -17,16 +17,29 @@ import app.model.MoodEntry;
 import app.model.MoodType;
 import app.model.User;
 
+/**
+ * The main client class for the Mood Tracker application.
+ * Handles user interaction and delegates operations to the MoodController.
+ */
 public class MoodTrackerClient {
     private final Scanner scanner;
     private final MoodController moodController;
     private User user;
 
+    /**
+     * Constructs a MoodTrackerClient with the specified MoodController.
+     *
+     * @param moodController the controller to handle mood-related operations
+     */
     public MoodTrackerClient(MoodController moodController) {
         this.moodController = moodController;
         this.scanner = new Scanner(System.in);
     }
 
+    /**
+     * Starts the Mood Tracker application.
+     * Displays the menu and handles user input.
+     */
     public void start() {
         System.out.println("Welcome to the Mood Tracker App!");
         signIn();
@@ -34,7 +47,7 @@ public class MoodTrackerClient {
         boolean running = true;
         while (running) {
             displayMenu();
-            int choice = getValidatedInteger("Enter your choice: ", 1, 11);
+            int choice = getValidatedInteger("Enter your choice: ", 1, 12);
 
             switch (choice) {
                 case 1 -> addMoodEntry();
@@ -47,12 +60,17 @@ public class MoodTrackerClient {
                 case 8 -> checkAllMoodEntriesMatch();
                 case 9 -> findAnyMoodEntry();
                 case 10 -> mapMoodEntriesToDescriptions();
-                case 11 -> running = confirmExit();
+                case 11 -> displayUniqueMoodDescriptions(); // Call the new method
+                case 12 -> running = confirmExit();
                 default -> System.out.println("Invalid choice. Please try again.");
             }
         }
     }
 
+    /**
+     * Handles user sign-in by prompting for email and password.
+     * Retrieves the user from the MoodController.
+     */
     private void signIn() {
         while (true) {
             System.out.println("\nSign In");
@@ -74,6 +92,9 @@ public class MoodTrackerClient {
         }
     }
 
+    /**
+     * Displays the main menu options to the user.
+     */
     private void displayMenu() {
         System.out.println("\nMenu:");
         System.out.println("1. Add Mood Entry");
@@ -86,9 +107,14 @@ public class MoodTrackerClient {
         System.out.println("8. Check if All Mood Entries Match a Condition");
         System.out.println("9. Find Any Mood Entry");
         System.out.println("10. Map Mood Entries to Descriptions");
-        System.out.println("11. Exit");
+        System.out.println("11. Display Unique Mood Descriptions");
+        System.out.println("12. Exit");
     }
 
+    /**
+     * Adds a new mood entry for the signed-in user.
+     * Prompts the user for mood details and saves the entry.
+     */
     private void addMoodEntry() {
         ArrayList<Mood> moods = new ArrayList<>();
 
@@ -123,6 +149,9 @@ public class MoodTrackerClient {
         }
     }
 
+    /**
+     * Displays the mood history for the signed-in user.
+     */
     private void viewMoodHistory() {
         try {
             ArrayList<MoodEntry> moodEntries = moodController.getAllMoodEntries(user);
@@ -136,6 +165,10 @@ public class MoodTrackerClient {
         }
     }
 
+    /**
+     * Filters mood entries based on intensity and condition (greater, less, or
+     * equal).
+     */
     private void filterMoodEntries() {
         int threshold = getValidatedInteger("Enter the intensity threshold to filter by: ", 1, 10);
         String condition = getInput("Filter moods with intensity (greater/less/equal): ").toLowerCase();
@@ -166,6 +199,11 @@ public class MoodTrackerClient {
         }
     }
 
+    /**
+     * Confirms if the user wants to exit the application.
+     *
+     * @return true if the user chooses not to exit, false otherwise
+     */
     private boolean confirmExit() {
         String exitChoice = getInput("Are you sure you want to exit? (y/n): ");
         if (exitChoice.equalsIgnoreCase("y")) {
@@ -176,11 +214,25 @@ public class MoodTrackerClient {
         return true;
     }
 
+    /**
+     * Prompts the user for input and returns the entered string.
+     *
+     * @param prompt the message to display to the user
+     * @return the user's input
+     */
     private String getInput(String prompt) {
         System.out.print(prompt);
         return scanner.nextLine();
     }
 
+    /**
+     * Prompts the user for an integer input and validates it within a range.
+     *
+     * @param prompt the message to display to the user
+     * @param min    the minimum valid value
+     * @param max    the maximum valid value
+     * @return the validated integer input
+     */
     private int getValidatedInteger(String prompt, int min, int max) {
         while (true) {
             try {
@@ -195,36 +247,23 @@ public class MoodTrackerClient {
         }
     }
 
-    private LocalDateTime getValidatedDate(String prompt) {
-        while (true) {
-            try {
-                return LocalDateTime.parse(getInput(prompt));
-            } catch (Exception e) {
-                System.out.println("Invalid date format. Please use yyyy-MM-ddTHH:mm:ss.");
-            }
-        }
-    }
-
-    private String convertToJSONString(Object data) {
-        Gson gson = new Gson();
-        return gson.toJson(data);
-    }
-
-    private void printAsJSONArray(String data) {
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        JsonArray jsonArray = JsonParser.parseString(data).getAsJsonArray();
-        System.out.println(gson.toJson(jsonArray));
-    }
-
+    /**
+     * Handles errors by printing an error message to the console.
+     *
+     * @param action the action being performed when the error occurred
+     * @param e      the exception that was thrown
+     */
     private void handleError(String action, Exception e) {
         System.err.println("An error occurred while " + action + ": " + e.getMessage());
     }
+
+    // new methods for assignment
 
     private void checkAllMoodEntriesMatch() {
         int threshold = getValidatedInteger("Enter the intensity threshold to check: ", 1, 10);
         try {
             boolean allMatch = moodController.allMoodEntriesMatch(user,
-                    moodEntry -> moodEntry.getMoods().stream().allMatch(mood -> mood.intensity() > threshold));
+                    moodEntry -> moodEntry.getMoods().stream().allMatch(mood -> mood.intensity() > threshold)); // predicate
             if (allMatch) {
                 System.out.println("All mood entries have an intensity greater than " + threshold + ".");
             } else {
@@ -340,5 +379,26 @@ public class MoodTrackerClient {
             System.out.println("  - Emotion: " + mood.emotion() + ", Intensity: " + mood.intensity());
         }
         System.out.println("--------------------------------------------------");
+    }
+
+    /**
+     * Displays a limited number of unique mood descriptions from the user's mood
+     * entries.
+     */
+    private void displayUniqueMoodDescriptions() {
+        int limit = getValidatedInteger("Enter the number of unique mood descriptions to display: ", 1, 10);
+
+        try {
+            List<String> uniqueDescriptions = moodController.getUniqueMoodDescriptions(user, limit);
+
+            if (uniqueDescriptions.isEmpty()) {
+                System.out.println("No unique mood descriptions found.");
+            } else {
+                System.out.println("Unique Mood Descriptions:");
+                uniqueDescriptions.forEach(System.out::println);
+            }
+        } catch (Exception e) {
+            handleError("displaying unique mood descriptions", e);
+        }
     }
 }

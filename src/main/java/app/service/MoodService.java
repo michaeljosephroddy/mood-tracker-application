@@ -107,9 +107,7 @@ public class MoodService {
      * @return A list of filtered mood entries.
      */
     public ArrayList<MoodEntry> getFilteredMoodEntries(User user, LocalDateTime dateToFilterOn, int option) {
-        ArrayList<MoodEntry> results = getAllMoodEntries(user);
-
-        return new ArrayList<>(results.stream()
+        return new ArrayList<>(getAllMoodEntries(user).stream()
                 .filter(moodEntry -> (option == 1)
                         ? LocalDateTime.parse(moodEntry.getDate()).isAfter(dateToFilterOn)
                         : LocalDateTime.parse(moodEntry.getDate()).isBefore(dateToFilterOn))
@@ -142,8 +140,7 @@ public class MoodService {
      *         entries for that date.
      */
     public Map<String, List<MoodEntry>> groupMoodEntriesByDate(User user) {
-        ArrayList<MoodEntry> moodEntries = getAllMoodEntries(user);
-        return moodEntries.stream()
+        return getAllMoodEntries(user).stream()
                 .collect(Collectors.groupingBy(MoodEntry::getDate));
     }
 
@@ -154,8 +151,7 @@ public class MoodService {
      * @return The total number of mood entries.
      */
     public long countMoodEntries(User user) {
-        ArrayList<MoodEntry> moodEntries = getAllMoodEntries(user);
-        return moodEntries.stream().count();
+        return getAllMoodEntries(user).stream().count();
     }
 
     /**
@@ -166,8 +162,7 @@ public class MoodService {
      *         empty if no entries exist.
      */
     public Optional<MoodEntry> findMoodEntryWithHighestIntensity(User user) {
-        ArrayList<MoodEntry> moodEntries = getAllMoodEntries(user);
-        return moodEntries.stream()
+        return getAllMoodEntries(user).stream()
                 .max(Comparator.comparingInt(moodEntry -> moodEntry.getMoods().stream()
                         .mapToInt(mood -> mood.intensity())
                         .max()
@@ -182,8 +177,7 @@ public class MoodService {
      * @return A list of mood entries that match the condition.
      */
     public List<MoodEntry> filterMoodEntries(User user, Predicate<MoodEntry> condition) {
-        ArrayList<MoodEntry> moodEntries = getAllMoodEntries(user);
-        return moodEntries.stream()
+        return getAllMoodEntries(user).stream()
                 .filter(condition)
                 .collect(Collectors.toList());
     }
@@ -197,8 +191,7 @@ public class MoodService {
      *         threshold, and false represents entries below.
      */
     public Map<Boolean, List<MoodEntry>> partitionMoodEntriesByIntensity(User user, int threshold) {
-        ArrayList<MoodEntry> moodEntries = getAllMoodEntries(user);
-        return moodEntries.stream()
+        return getAllMoodEntries(user).stream()
                 .collect(Collectors.partitioningBy(moodEntry -> moodEntry.getMoods().stream()
                         .anyMatch(mood -> mood.intensity() > threshold)));
     }
@@ -211,8 +204,7 @@ public class MoodService {
      *         description.
      */
     public Map<String, String> mapMoodEntriesToDescriptions(User user) {
-        ArrayList<MoodEntry> moodEntries = getAllMoodEntries(user);
-        return moodEntries.stream()
+        return getAllMoodEntries(user).stream()
                 .collect(Collectors.toMap(MoodEntry::getMoodEntryId, MoodEntry::getDescription));
     }
 
@@ -223,8 +215,7 @@ public class MoodService {
      * @return A list of mood entries sorted by date.
      */
     public List<MoodEntry> sortMoodEntriesByDate(User user) {
-        ArrayList<MoodEntry> moodEntries = getAllMoodEntries(user);
-        return moodEntries.stream()
+        return getAllMoodEntries(user).stream()
                 .sorted(Comparator.comparing(MoodEntry::getDate))
                 .collect(Collectors.toList());
     }
@@ -237,8 +228,7 @@ public class MoodService {
      * @return True if all mood entries match the condition, false otherwise.
      */
     public boolean allMoodEntriesMatch(User user, Predicate<MoodEntry> condition) {
-        ArrayList<MoodEntry> moodEntries = getAllMoodEntries(user);
-        return moodEntries.stream().allMatch(condition);
+        return getAllMoodEntries(user).stream().allMatch(condition);
     }
 
     /**
@@ -248,8 +238,22 @@ public class MoodService {
      * @return An optional containing any mood entry, or empty if no entries exist.
      */
     public Optional<MoodEntry> findAnyMoodEntry(User user) {
-        ArrayList<MoodEntry> moodEntries = getAllMoodEntries(user);
-        return moodEntries.stream().findAny();
+        return getAllMoodEntries(user).stream().findAny();
+    }
+
+    /**
+     * Retrieves a limited number of unique mood descriptions for a user.
+     *
+     * @param user  The user whose mood descriptions are to be retrieved.
+     * @param limit The maximum number of unique descriptions to retrieve.
+     * @return A list of unique mood descriptions, limited to the specified number.
+     */
+    public List<String> getUniqueMoodDescriptions(User user, int limit) {
+        return getAllMoodEntries(user).stream()
+                .map(MoodEntry::getDescription) // Extract descriptions
+                .distinct() // Ensure uniqueness
+                .limit(limit) // Limit the number of results
+                .toList(); // Collect into a list
     }
 
 }

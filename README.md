@@ -1,22 +1,55 @@
-# Mood-Tracker
+# Mood Tracker Application
 
-A pure Java application that runs in the console, enabling users to create and read mood entries.
+A console-based Java application that allows users to track their moods by creating, reading, filtering, and managing mood entries. The application is built using a **layered architecture** for better separation of concerns and maintainability.
 
 ---
 
-## Implementation
+## Architecture
 
-This application is built using an **MVC (Model-View-Controller)** architecture combined with a database layer. Here’s how the components interact:
+The application follows a **layered architecture** with the following components:
 
-- **View:** Takes input from the user and calls methods from the controller.
-- **Controller:** Updates the models and interacts with the database.
-- **Database Layer:** Utilizes an H2 in-memory database to temporarily store mood entries for demonstration purposes.
+- **Controller Layer:** Handles user requests and delegates tasks to the service layer.
+- **Service Layer:** Contains the business logic for processing mood entries.
+- **Repository Layer:** Interacts with the database to perform CRUD operations.
+- **Database Layer:** Uses **MySQL** as the database for persistent storage.
 
-### Key Features
+---
 
-The application showcases both fundamental and some more advanced features of the Java programming language.
+## Key Features
 
-#### **Fundamental Features:**
+### **Mood Entry Management**
+
+- Add, edit, and delete mood entries.
+- View all mood entries for a user.
+
+### **Filtering and Grouping**
+
+- Filter mood entries based on:
+  - Intensity (greater, less, or equal to a threshold).
+  - Date (before or after a specific date).
+- Group mood entries by their date.
+
+### **Advanced Stream Operations**
+
+- Partition mood entries into two groups based on intensity.
+- Map mood entry IDs to their descriptions.
+- Sort mood entries by date.
+- Display unique mood descriptions with a limit on the number of results.
+
+### **Statistics**
+
+- Count the total number of mood entries for a user.
+- Find the mood entry with the highest intensity.
+- Check if all mood entries match a specific condition.
+- Find any mood entry that matches a condition.
+
+---
+
+## Java Features Demonstrated
+
+This application showcases a wide range of Java features, including both fundamental and advanced concepts.
+
+### **Fundamental Features:**
 
 - **Object-Oriented Principles:**
   - Classes and objects
@@ -35,44 +68,47 @@ The application showcases both fundamental and some more advanced features of th
   - Varargs
   - Local Variable Type Inference (LVTI)
 
-#### **Advanced Features:**
+### **Advanced Features:**
 
-- Functional Programming:
+- **Functional Programming:**
   - Lambdas (e.g., `Predicate`)
   - Method references
   - Discussion of `final` and `effectively final` variables
-- Modern Java Features:
+- **Modern Java Features:**
   - Switch expressions and pattern matching
   - Records (custom immutable types)
   - Sealed classes and interfaces
-- Interfaces:
+- **Interfaces:**
   - Private, default, and static methods
-- Defensive Coding:
+- **Defensive Coding:**
   - Call-by-value and defensive copying
 
----
+### **Stream API Operations:**
 
-## Planned Improvements
+The application makes extensive use of the **Stream API** for functional programming and data processing:
 
-1. **Filtering:**
-   - Add functionality to filter mood entries based on conditions such as mood type and intensity.
-2. **Updating Records:**
-   - Enable users to update specific entries by their unique ID.
-3. **Deleting Records:**
-   - Allow users to delete a mood entry by its ID.
+- **Terminal Operations:**
+  - `min()`, `max()`, `count()`, `findAny()`, `findFirst()`
+  - `allMatch()`, `anyMatch()`, `noneMatch()`
+  - `forEach()`
+- **Collectors:**
+  - `Collectors.toMap()`
+  - `Collectors.groupingBy()`
+  - `Collectors.partitioningBy()`
 
 ---
 
 ## Running the Application
 
-### Build:
+### Prerequisites:
 
-```bash
-mvn clean install
-```
+- Java 21 or later
+- Maven 3.6 or later
+- MySQL database installed and running
 
-### Run:
+### Database Setup:
 
-```bash
-mvn exec:java -Dexec.mainClass="app.MainApp"
-```
+1. Create a MySQL database:
+   ```sql
+   CREATE DATABASE mood_tracker;
+   ```

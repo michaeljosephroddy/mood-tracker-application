@@ -18,3 +18,4 @@ app/model/MoodEntry$1.class
 app/client/MoodTrackerClient.class
 app/exception/MoodEntryUpdateException.class
 app/exception/DatabaseReadException.class
+app/MainApp.class
